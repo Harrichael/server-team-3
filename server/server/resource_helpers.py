@@ -62,6 +62,8 @@ def verify_username(resource_method):
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
         username = kwargs[Api.username]
+        del kwargs[Api.username]
+        args.append(username)
         if resource_inst.users.validate_username(username):
             if resource_inst.session.get_user(args[0]) == username:
                 return resource_method(resource_inst, *args, **kwargs)
@@ -82,7 +84,9 @@ def verify_user(resource_method):
 
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
-        username = kwargs[Api.username]
+        username = kwargs[Api.user]
+        del kwargs[Api.user]
+        args.append(username)
         if resource_inst.users.validate_username(username):
             return resource_method(resource_inst, *args, **kwargs)
         else:

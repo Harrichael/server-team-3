@@ -2,6 +2,8 @@
 Users resource to handle registered users and their profiles
 """
 
+from collections import defaultdict
+
 from server.api import Api
 from server.resource import Resource
 from server.resource_helpers import ( expect_data,
@@ -9,6 +11,7 @@ from server.resource_helpers import ( expect_data,
                                       verify_username,
                                       verify_user,
                                     )
+from server.message import MessageBox
 
 class UserConfig(object):
     def __init__(self):
@@ -37,12 +40,18 @@ class UserProfile(object):
         }
 
 class User(object):
+    pm_boxes = defaultdict(MessageBox)
+
     def __init__(self, username, password, email):
         self.username = username
         self.password = password
         self.email = email
         self.config = UserConfig()
         self.profile = UserProfile()
+
+    def get_pm_box(self, user2):
+        key = tuple(sorted([self.username, user2]))
+        return self.pm_boxes[key]
 
 class Users(Resource):
     """
@@ -77,8 +86,10 @@ class Users(Resource):
         'on_put_verify_email': Api.username_param + Api.res_emails,
         'on_get_user_config': Api.username_param + Api.res_config,
         'on_put_user_config': Api.username_param + Api.res_config,
-        'on_get_user_profile': Api.username_param + Api.res_profile,
+        'on_get_user_profile': Api.user_param + Api.res_profile,
         'on_put_user_profile': Api.username_param + Api.res_profile,
+        'on_get_user_pm': Api.username_param + Api.res_pm + Api.user_param,
+        'on_post_user_pm': Api.username_param + Api.res_pm + Api.user_param,
     }
 
     """
@@ -137,9 +148,9 @@ class Users(Resource):
 
     @expect_session_key
     @verify_user
-    def on_get_user_profile(self, session_key, username):
+    def on_get_user_profile(self, session_key, user):
         self.response.status = 200
-        return self._users[username].profile.get_dict()
+        return self._users[user].profile.get_dict()
 
     @expect_session_key
     @verify_username
@@ -157,4 +168,17 @@ class Users(Resource):
 
         return user.profile.get_dict()
 
+    @expect_session_key
+    @verify_username
+    @verify_user
+    def on_get_user_pm(self, session_key, username, user):
+        return self._users[username].get_pm_box(user).get_dict()
+
+    @expect_session_key
+    @expect_data(Api.message)
+    @verify_username
+    @verify_user
+    def on_post_user_pm(self, session_key, message_text, username, user):
+        pm = self._users[username].get_pm_box(user)
+        return pm.add_msg(username, message_text).get_dict()
 

@@ -13,13 +13,16 @@ class Api(object):
     res_password = '/password'
     res_config = '/config'
     res_profile = '/profile'
+    res_pm = '/pm'
     username_param = '/<username>'
+    user_param = '/<user>'
 
     """
     Data fields
     """
     session_key = 'session-key'
     username = 'username'
+    user = 'user'
     password = 'password'
     email = 'email'
     users = 'users'
@@ -31,4 +34,10 @@ class Api(object):
     lastname = 'last-name'
     bio = 'bio'
     gender = 'gender'
+    sender = 'sender'
+    msg_id = 'msg_id'
+    msg = 'msg'
+    timestamp = 'timestamp'
+    message = 'message'
+    messages = 'messages'
 
