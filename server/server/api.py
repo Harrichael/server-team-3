@@ -16,6 +16,7 @@ class Api(object):
     res_pm = '/pm'
     username_param = '/<username>'
     user_param = '/<user>'
+    msg_id_param = '/<msg_id>'
 
     """
     Data fields

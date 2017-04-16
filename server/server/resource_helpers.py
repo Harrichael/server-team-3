@@ -95,3 +95,22 @@ def verify_user(resource_method):
 
     return wrapper
 
+"""
+Handles validity check for msg id parameter
+"""
+def verify_msg_id(resource_method):
+
+    def wrapper(resource_inst, *args, **kwargs):
+        args = list(args)
+        try:
+            msg_id = int(kwargs[Api.msg_id])
+        except:
+            resource_inst.response.status = 400
+            return {}
+        del kwargs[Api.msg_id]
+        args.append(msg_id)
+        return resource_method(resource_inst, *args, **kwargs)
+
+    return wrapper
+
+

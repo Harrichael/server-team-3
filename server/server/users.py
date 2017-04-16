@@ -10,6 +10,7 @@ from server.resource_helpers import ( expect_data,
                                       expect_session_key,
                                       verify_username,
                                       verify_user,
+                                      verify_msg_id,
                                     )
 from server.message import MessageBox
 
@@ -91,6 +92,7 @@ class Users(Resource):
         'on_put_user_profile': Api.username_param + Api.res_profile,
         'on_get_user_pm': Api.username_param + Api.res_pm + Api.user_param,
         'on_post_user_pm': Api.username_param + Api.res_pm + Api.user_param,
+        'on_delete_pm': Api.username_param + Api.res_pm + Api.user_param + Api.msg_id_param,
     }
 
     """
@@ -176,7 +178,7 @@ class Users(Resource):
     def on_get_user_pm(self, session_key, username, user):
         pm = self._users[username].get_pm_box(user)
         try:
-            page_size = int(self.request.query.page_size or '10')
+            page_size = int(self.request.query.page_size or self.default_page_size)
             page = int(self.request.query.page or pm.last_page(page_size))
         except:
             raise
@@ -193,4 +195,18 @@ class Users(Resource):
         pm = self._users[username].get_pm_box(user)
         self.response.status = 200
         return pm.add_msg(username, message_text).get_dict()
+
+    @expect_session_key
+    @verify_username
+    @verify_user
+    @verify_msg_id
+    def on_delete_pm(self, session_key, username, user, msg_id):
+        pm = self._users[username].get_pm_box(user)
+        try:
+            pm.remove_msg_id(msg_id)
+            self.response.status = 200
+        except ValueError:
+            self.response.status = 404
+
+        return {}
 
