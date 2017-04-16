@@ -16,12 +16,16 @@ from server.message import MessageBox
 
 class UserConfig(object):
     def __init__(self):
-        self.blocked = []
+        #TODO: implement blocked behavior
+        self.blocked = set()
         self.chat_filter = Api.default_chat_filter
+
+    def set_blocked(self, blocked):
+        self.blocked = set(blocked)
 
     def get_dict(self):
         return {
-            Api.blocked: self.blocked,
+            Api.blocked: list(self.blocked),
             Api.chat_filter: self.chat_filter,
         }
 
@@ -50,8 +54,8 @@ class User(object):
         self.config = UserConfig()
         self.profile = UserProfile()
 
-    def get_pm_box(self, user2):
-        key = tuple(sorted([self.username, user2]))
+    def get_pm_box(self, user):
+        key = tuple(sorted([self.username, user]))
         return self.pm_boxes[key]
 
 class Users(Resource):
@@ -74,11 +78,11 @@ class Users(Resource):
     def validate_username(self, username):
         return username in self._users
 
-    def set_session_resource(self, session_resource):
-        self.session = session_resource
-
     def validate_password(self, username, password):
         return password == self._users[username].password
+
+    def set_session_resource(self, session_resource):
+        self.session = session_resource
 
     """
     Special Uri Handling
@@ -142,7 +146,7 @@ class Users(Resource):
         user = self._users[username]
         json_data = self.request.json
         if Api.blocked in json_data:
-            user.config.blocked = json_data[Api.blocked]
+            user.config.set_blocked(json_data[Api.blocked])
         if Api.chat_filter in json_data:
             user.config.chat_filter = json_data[Api.chat_filter]
 
@@ -193,7 +197,7 @@ class Users(Resource):
     @verify_user
     def on_post_user_pm(self, session_key, message_text, username, user):
         pm = self._users[username].get_pm_box(user)
-        self.response.status = 200
+        self.response.status = 201
         return pm.add_msg(username, message_text).get_dict()
 
     @expect_session_key

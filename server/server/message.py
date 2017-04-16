@@ -30,7 +30,7 @@ class MessageBox(object):
         if self.msgs:
             msg_id = self.msgs[-1].msg_id + 1
         new_msg = Message(username, msg_id, message_text)
-        self.msgs.insert_last(new_msg)
+        self.msgs.append(new_msg)
         return new_msg
 
     def remove_msg_id(self, msg_id):

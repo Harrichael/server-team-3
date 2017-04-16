@@ -50,7 +50,7 @@ class SortedCollection(object):
         self._keys.insert(index, k)
         self._items.insert(index, item)
 
-    def insert_last(self, item):
+    def append(self, item):
         k = self._key(item)
         if not self._keys or k >= self._keys[-1]:
             self._keys.append(k)

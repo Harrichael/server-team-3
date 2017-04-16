@@ -26,6 +26,7 @@ def add_resource(uri, resource):
                 getattr(bottle, method)(method_uri)( getattr(resource, resource_method) )
                 break
 
-def set_routes(session, users):
+def set_routes(session, users, channels):
     add_resource(Api.session, session)
     add_resource(Api.res_users, users)
+    add_resource(Api.res_channels, channels)

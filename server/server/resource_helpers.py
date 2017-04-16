@@ -103,14 +103,31 @@ def verify_msg_id(resource_method):
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
         try:
-            msg_id = int(kwargs[Api.msg_id])
+            msg_id = int(kwargs[Api.msg_id_p])
         except:
             resource_inst.response.status = 400
             return {}
-        del kwargs[Api.msg_id]
+        del kwargs[Api.msg_id_p]
         args.append(msg_id)
         return resource_method(resource_inst, *args, **kwargs)
 
     return wrapper
 
+"""
+Handles validity check for channel existence
+"""
+def verify_channel(resource_method):
+
+    def wrapper(resource_inst, *args, **kwargs):
+        args = list(args)
+        channel_name = kwargs[Api.channel]
+        del kwargs[Api.channel]
+        args.append(channel_name)
+        if resource_inst.validate_channel_name(channel_name):
+            return resource_method(resource_inst, *args, **kwargs)
+        else:
+            resource_inst.response.status = 404
+            return {}
+
+    return wrapper
 
