@@ -207,7 +207,7 @@ class Users(Resource):
     def on_delete_pm(self, session_key, username, user, msg_id):
         pm = self._users[username].get_pm_box(user)
         try:
-            pm.remove_msg_id(msg_id)
+            pm.remove_msg_id(msg_id, username)
             self.response.status = 200
         except ValueError:
             self.response.status = 404

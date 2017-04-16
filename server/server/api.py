@@ -54,4 +54,5 @@ class Api(object):
     time = 'time'
     admins = 'admins'
     chief_admin = 'chief-admin'
+    chat = 'chat'
 

@@ -33,8 +33,11 @@ class MessageBox(object):
         self.msgs.append(new_msg)
         return new_msg
 
-    def remove_msg_id(self, msg_id):
-        self.msgs.remove_by_key(msg_id)
+    def remove_msg_id(self, msg_id, username):
+        if self.msgs.find(msg_id).sender == username:
+            self.msgs.remove_by_key(msg_id)
+        else:
+            raise ValueError
 
     def last_page(self, page_size):
         if not self.msgs:

@@ -155,6 +155,9 @@ class Channels(Resource):
         'on_post_block_user': Api.channel_param + '/' + Api.black_list,
         'on_get_chnl_admins': Api.channel_param + '/' + Api.admins,
         'on_put_update_admins': Api.channel_param + '/' + Api.admins,
+        'on_get_chnl_chat': Api.channel_param + '/' + Api.chat,
+        'on_post_chnl_new_msg': Api.channel_param + '/' + Api.chat,
+        'on_delete_chnl_del_msg': Api.channel_param + '/' + Api.chat + Api.msg_id_param,
     }
 
     """
@@ -296,4 +299,55 @@ class Channels(Resource):
         else:
             self.response.status = 200
             return {}
+
+    @expect_session_key
+    @verify_channel
+    def on_get_chnl_chat(self, session_key, channel_name):
+        channel = self._channels[channel_name]
+        username = self.session.get_user(session_key)
+        if not channel.is_subscribed(username):
+            self.response.status = 404
+            return {}
+
+        try:
+            page_size = int(self.request.query.page_size or self.default_page_size)
+            page = int(self.request.query.page or channel.chat.last_page(page_size))
+        except:
+            raise
+            self.response.status = 400
+            return {}
+
+        self.response.status = 200
+        return channel.chat.get_dict(page, page_size)
+
+    @expect_session_key
+    @verify_channel
+    @expect_data(Api.message)
+    def on_post_chnl_new_msg(self, session_key, channel_name, message_text):
+        channel = self._channels[channel_name]
+        username = self.session.get_user(session_key)
+        if not channel.is_subscribed(username):
+            self.response.status = 404
+            return {}
+
+        self.response.status = 201
+        return channel.chat.add_msg(username, message_text).get_dict()
+
+    @expect_session_key
+    @verify_channel
+    @verify_msg_id
+    def on_delete_chnl_del_msg(self, session_key, channel_name, msg_id):
+        channel = self._channels[channel_name]
+        username = self.session.get_user(session_key)
+        if not channel.is_subscribed(username):
+            self.response.status = 404
+            return {}
+
+        try:
+            channel.chat.remove_msg_id(msg_id, username)
+            self.response.status = 200
+        except ValueError:
+            self.response.status = 404
+
+        return {}
 
