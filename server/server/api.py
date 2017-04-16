@@ -52,4 +52,6 @@ class Api(object):
     subscriptions = 'subscriptions'
     black_list = 'black-list'
     time = 'time'
+    admins = 'admins'
+    chief_admin = 'chief-admin'
 

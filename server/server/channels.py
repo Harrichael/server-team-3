@@ -153,6 +153,8 @@ class Channels(Resource):
         'on_delete_unsubscribe': Api.channel_param + '/' + Api.subscriptions,
         'on_get_black_list': Api.channel_param + '/' + Api.black_list,
         'on_post_block_user': Api.channel_param + '/' + Api.black_list,
+        'on_get_chnl_admins': Api.channel_param + '/' + Api.admins,
+        'on_put_update_admins': Api.channel_param + '/' + Api.admins,
     }
 
     """
@@ -242,4 +244,56 @@ class Channels(Resource):
         else:
             self.response.status = 422
         return {}
+
+    @expect_session_key
+    @verify_channel
+    def on_get_chnl_admins(self, session_key, channel_name):
+        channel = self._channels[channel_name]
+        self.response.status = 200
+        return {
+            Api.admins: list(channel.admins),
+            Api.chief_admin: channel.chief_admin
+        }
+
+    @expect_session_key
+    @verify_channel
+    def on_put_update_admins(self, session_key, channel_name):
+        failed_admin_updates = []
+
+        channel = self._channels[channel_name]
+        user = self.session.get_user(session_key)
+        if not channel.is_chief_admin(user):
+            self.response.status = 404
+            return {}
+
+        json_data = self.request.json
+
+        if Api.chief_admin in json_data:
+            chief_admin = json_data[Api.chief_admin]
+            if not channel.is_admin(chief_admin):
+                if not channel.promote_admin(chief_admin):
+                    self.response.status = 422
+                    return {}
+            channel.promote_chief_admin(chief_admin)
+
+        if Api.admins in json_data:
+            admins = set(json_data[Api.admins])
+            for admin in channel.admins:
+                if admin not in admins:
+                    if not channel.demote_admin(admin):
+                        failed_admin_updates.append(admin)
+
+            for admin in admins:
+                if admin not in channel.admins:
+                    if not channel.promote_admin(admin):
+                        failed_admin_updates.append(admin)
+            
+        if failed_admin_updates:
+            self.response.status = 422
+            return {
+                Api.admins: failed_admin_updates
+            }
+        else:
+            self.response.status = 200
+            return {}
 
