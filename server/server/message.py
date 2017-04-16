@@ -32,7 +32,20 @@ class MessageBox(object):
         self.msgs.append(new_msg)
         return new_msg
 
-    def get_dict(self):
+    def last_page(self, page_size):
+        if not self.msgs:
+            return 0
+        return (len(self.msgs)-1) // max(page_size,1)
+
+    def get_dict(self, page=0, page_size=None):
+        if not page_size:
+            page_size = len(self.msgs)
+        page_size = max(page_size, 1)
+
+        page = max(page, 0)
+        page = min(self.last_page(page_size), page)
+
+        msgs = self.msgs[page*page_size:(page+1)*page_size]
         return {
-            Api.messages: [msg.get_dict() for msg in self.msgs]
+            Api.messages: [msg.get_dict() for msg in msgs]
         }

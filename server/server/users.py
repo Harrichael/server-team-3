@@ -57,6 +57,7 @@ class Users(Resource):
     """
     Resource Parameters
     """
+    default_page_size = 10
 
     """
     Resource Data
@@ -166,13 +167,23 @@ class Users(Resource):
         if Api.gender in json_data:
             user.profile.gender = json_data[Api.gender]
 
+        self.response.status = 200
         return user.profile.get_dict()
 
     @expect_session_key
     @verify_username
     @verify_user
     def on_get_user_pm(self, session_key, username, user):
-        return self._users[username].get_pm_box(user).get_dict()
+        pm = self._users[username].get_pm_box(user)
+        try:
+            page_size = int(self.request.query.page_size or '10')
+            page = int(self.request.query.page or pm.last_page(page_size))
+        except:
+            raise
+            self.response.status = 400
+            return {}
+        self.response.status = 200
+        return pm.get_dict(page, page_size)
 
     @expect_session_key
     @expect_data(Api.message)
@@ -180,5 +191,6 @@ class Users(Resource):
     @verify_user
     def on_post_user_pm(self, session_key, message_text, username, user):
         pm = self._users[username].get_pm_box(user)
+        self.response.status = 200
         return pm.add_msg(username, message_text).get_dict()
 
