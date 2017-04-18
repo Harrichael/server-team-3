@@ -1,3 +1,6 @@
+"""
+Rest methods abstracted into how we user them for our server
+"""
 
 import requests
 
