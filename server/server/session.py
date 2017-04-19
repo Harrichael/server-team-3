@@ -9,6 +9,7 @@ from server.api import Api
 from server.resource import Resource
 from server.resource_helpers import expect_data, expect_session_key
 from server.utility import choice
+from server.routes import route
 
 class Session(Resource):
     """
@@ -54,22 +55,17 @@ class Session(Resource):
         return ''.join(choice(self.session_key_chars) for _ in range(self.session_key_len))
 
     """
-    Special Uri Handling
-    """
-    method_uris = {
-        'on_get_online_users': '/' + Api.users
-    }
-
-    """
     Rest Methods
     """
+    @route('/' + Api.users)
     @expect_session_key
-    def on_get_online_users(self, session_key):
+    def get_online_users(self, session_key):
         self.response.status = 200
         return {Api.users: list(self._users())}
 
+    @route()
     @expect_data(Api.username, Api.password)
-    def on_post_login(self, username, password):
+    def post_login(self, username, password):
         if self.users.validate_username(username):
             if self.users.validate_password(username, password):
                 new_session_key = self._gen_session_key()
@@ -84,8 +80,9 @@ class Session(Resource):
             self.response.status = 422
             return {}
 
+    @route()
     @expect_session_key
-    def on_delete_logout(self, session_key):
+    def delete_logout(self, session_key):
         self.logout(session_key)
         self.response.status = 204
         return {}

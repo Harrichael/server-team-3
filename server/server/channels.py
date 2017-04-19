@@ -13,6 +13,7 @@ from server.resource_helpers import ( expect_data,
                                     )
 from server.message import MessageBox
 from server.utility import epoch_timestamp
+from server.routes import route
 
 class Channel(object):
     def __init__(self, name, username):
@@ -144,35 +145,20 @@ class Channels(Resource):
         return channel_name in self._channels
 
     """
-    Special Uri Handling
-    """
-    method_uris = {
-        'on_delete_channel': Api.channel_param,
-        'on_get_chnl_subscriptions': Api.channel_param + '/' + Api.subscriptions,
-        'on_post_subscribe': Api.channel_param + '/' + Api.subscriptions,
-        'on_delete_unsubscribe': Api.channel_param + '/' + Api.subscriptions,
-        'on_get_black_list': Api.channel_param + '/' + Api.black_list,
-        'on_post_block_user': Api.channel_param + '/' + Api.black_list,
-        'on_get_chnl_admins': Api.channel_param + '/' + Api.admins,
-        'on_put_update_admins': Api.channel_param + '/' + Api.admins,
-        'on_get_chnl_chat': Api.channel_param + '/' + Api.chat,
-        'on_post_chnl_new_msg': Api.channel_param + '/' + Api.chat,
-        'on_delete_chnl_del_msg': Api.channel_param + '/' + Api.chat + Api.msg_id_param,
-    }
-
-    """
     Rest Methods
     """
+    @route()
     @expect_session_key
-    def on_get_channel_names(self, session_key):
+    def get_channel_names(self, session_key):
         self.response.status = 200
         return {
             Api.channels: self.channel_names()
         }
 
+    @route()
     @expect_session_key
     @expect_data(Api.channel_name)
-    def on_post_channel(self, session_key, channel_name):
+    def post_channel(self, session_key, channel_name):
         username = self.session.get_user(session_key)
         if channel_name not in self._channels:
             self._channels[channel_name] = Channel(channel_name, username)
@@ -181,9 +167,10 @@ class Channels(Resource):
             self.response.status = 409
         return {}
 
+    @route(Api.channel_param)
     @expect_session_key
     @verify_channel
-    def on_delete_channel(self, session_key, channel_name):
+    def delete_channel(self, session_key, channel_name):
         username = self.session.get_user(session_key)
         channel = self._channels[channel_name]
         if channel.is_chief_admin(username):
@@ -193,18 +180,20 @@ class Channels(Resource):
             self.response.status = 403
         return {}
 
+    @route(Api.channel_param + '/' + Api.subscriptions)
     @expect_session_key
     @verify_channel
-    def on_get_chnl_subscriptions(self, session_key, channel_name):
+    def get_chnl_subscriptions(self, session_key, channel_name):
         channel = self._channels[channel_name]
         self.response.status = 200
         return {
             Api.subscriptions: list(channel.subscribers)
         }
 
+    @route(Api.channel_param + '/' + Api.subscriptions)
     @expect_session_key
     @verify_channel
-    def on_post_subscribe(self, session_key, channel_name):
+    def post_subscribe(self, session_key, channel_name):
         channel = self._channels[channel_name]
         username = self.session.get_user(session_key)
         if channel.subscribe(username):
@@ -213,9 +202,10 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
+    @route(Api.channel_param + '/' + Api.subscriptions)
     @expect_session_key
     @verify_channel
-    def on_delete_unsubscribe(self, session_key, channel_name):
+    def delete_unsubscribe(self, session_key, channel_name):
         channel = self._channels[channel_name]
         username = self.session.get_user(session_key)
         if channel.unsubscribe(username):
@@ -224,18 +214,20 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
+    @route(Api.channel_param + '/' + Api.black_list)
     @expect_session_key
     @verify_channel
-    def on_get_black_list(self, session_key, channel_name):
+    def get_black_list(self, session_key, channel_name):
         channel = self._channels[channel_name]
         channel.update_block_list()
         self.response.status = 200
         return channel.blocked_get_dict()
 
+    @route(Api.channel_param + '/' + Api.black_list)
     @expect_session_key
     @expect_data(Api.username, Api.time)
     @verify_channel
-    def on_post_block_user(self, session_key, username, duration, channel_name):
+    def post_block_user(self, session_key, username, duration, channel_name):
         channel = self._channels[channel_name]
         user = self.session.get_user(session_key)
         if all([
@@ -248,9 +240,10 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
+    @route(Api.channel_param + '/' + Api.admins)
     @expect_session_key
     @verify_channel
-    def on_get_chnl_admins(self, session_key, channel_name):
+    def get_chnl_admins(self, session_key, channel_name):
         channel = self._channels[channel_name]
         self.response.status = 200
         return {
@@ -258,9 +251,10 @@ class Channels(Resource):
             Api.chief_admin: channel.chief_admin
         }
 
+    @route(Api.channel_param + '/' + Api.admins)
     @expect_session_key
     @verify_channel
-    def on_put_update_admins(self, session_key, channel_name):
+    def put_update_admins(self, session_key, channel_name):
         failed_admin_updates = []
 
         channel = self._channels[channel_name]
@@ -300,9 +294,10 @@ class Channels(Resource):
             self.response.status = 200
             return {}
 
+    @route(Api.channel_param + '/' + Api.chat)
     @expect_session_key
     @verify_channel
-    def on_get_chnl_chat(self, session_key, channel_name):
+    def get_chnl_chat(self, session_key, channel_name):
         channel = self._channels[channel_name]
         username = self.session.get_user(session_key)
         if not channel.is_subscribed(username):
@@ -320,10 +315,11 @@ class Channels(Resource):
         self.response.status = 200
         return channel.chat.get_dict(page, page_size)
 
+    @route(Api.channel_param + '/' + Api.chat)
     @expect_session_key
     @verify_channel
     @expect_data(Api.message)
-    def on_post_chnl_new_msg(self, session_key, channel_name, message_text):
+    def post_chnl_new_msg(self, session_key, channel_name, message_text):
         channel = self._channels[channel_name]
         username = self.session.get_user(session_key)
         if not channel.is_subscribed(username):
@@ -333,10 +329,11 @@ class Channels(Resource):
         self.response.status = 201
         return channel.chat.add_msg(username, message_text).get_dict()
 
+    @route(Api.channel_param + '/' + Api.chat + Api.msg_id_param)
     @expect_session_key
     @verify_channel
     @verify_msg_id
-    def on_delete_chnl_del_msg(self, session_key, channel_name, msg_id):
+    def delete_chnl_del_msg(self, session_key, channel_name, msg_id):
         channel = self._channels[channel_name]
         username = self.session.get_user(session_key)
         if not channel.is_subscribed(username):

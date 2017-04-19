@@ -13,6 +13,7 @@ from server.resource_helpers import ( expect_data,
                                       verify_msg_id,
                                     )
 from server.message import MessageBox
+from server.routes import route
 
 class UserConfig(object):
     def __init__(self):
@@ -85,25 +86,11 @@ class Users(Resource):
         self.session = session_resource
 
     """
-    Special Uri Handling
-    """
-    method_uris = {
-        'on_put_change_password': Api.username_param + Api.res_password,
-        'on_put_verify_email': Api.username_param + Api.res_emails,
-        'on_get_user_config': Api.username_param + Api.res_config,
-        'on_put_user_config': Api.username_param + Api.res_config,
-        'on_get_user_profile': Api.user_param + Api.res_profile,
-        'on_put_user_profile': Api.username_param + Api.res_profile,
-        'on_get_user_pm': Api.username_param + Api.res_pm + Api.user_param,
-        'on_post_user_pm': Api.username_param + Api.res_pm + Api.user_param,
-        'on_delete_pm': Api.username_param + Api.res_pm + Api.user_param + Api.msg_id_param,
-    }
-
-    """
     Rest Methods
     """
+    @route()
     @expect_data(Api.username, Api.password, Api.email)
-    def on_post_register(self, username, password, email):
+    def post_register(self, username, password, email):
         # TODO: validate email, send email
         if username not in self._users:
             self._users[username] = User(username, password, email)
@@ -112,18 +99,20 @@ class Users(Resource):
             self.response.status = 409
         return {}
 
+    @route(Api.username_param + Api.res_password)
     @expect_session_key
     @expect_data(Api.password)
     @verify_username
-    def on_put_change_password(self, session_key, password, username):
+    def put_change_password(self, session_key, password, username):
         self._users[username].password = password
         self.session.logout_user(username)
         self.response.status = 200
         return {}
 
+    @route(Api.username_param + Api.res_emails)
     @expect_data(Api.email, Api.email_code)
     @verify_username
-    def on_put_verify_email(self, email, email_code, username):
+    def put_verify_email(self, email, email_code, username):
         # TODO: implement this code stuff
         user = self._users[username]
         if user.email == email:
@@ -133,16 +122,18 @@ class Users(Resource):
             self.response.status = 422
             return {}
 
+    @route(Api.username_param + Api.res_config)
     @expect_session_key
     @verify_username
-    def on_get_user_config(self, session_key, username):
+    def get_user_config(self, session_key, username):
         user = self._users[username]
         self.response.status = 200
         return user.config.get_dict()
 
+    @route(Api.username_param + Api.res_config)
     @expect_session_key
     @verify_username
-    def on_put_user_config(self, session_key, username):
+    def put_user_config(self, session_key, username):
         user = self._users[username]
         json_data = self.request.json
         if Api.blocked in json_data:
@@ -153,15 +144,17 @@ class Users(Resource):
         self.response.status = 200
         return user.config.get_dict()
 
+    @route(Api.username_param + Api.res_profile)
     @expect_session_key
     @verify_user
-    def on_get_user_profile(self, session_key, user):
+    def get_user_profile(self, session_key, user):
         self.response.status = 200
         return self._users[user].profile.get_dict()
 
+    @route(Api.username_param + Api.res_profile)
     @expect_session_key
     @verify_username
-    def on_put_user_profile(self, session_key, username):
+    def put_user_profile(self, session_key, username):
         user = self._users[username]
         json_data = self.request.json
         if Api.firstname in json_data:
@@ -176,10 +169,11 @@ class Users(Resource):
         self.response.status = 200
         return user.profile.get_dict()
 
+    @route(Api.username_param + Api.res_pm + Api.user_param)
     @expect_session_key
     @verify_username
     @verify_user
-    def on_get_user_pm(self, session_key, username, user):
+    def get_user_pm(self, session_key, username, user):
         pm = self._users[username].get_pm_box(user)
         try:
             page_size = int(self.request.query.page_size or self.default_page_size)
@@ -191,20 +185,22 @@ class Users(Resource):
         self.response.status = 200
         return pm.get_dict(page, page_size)
 
+    @route(Api.username_param + Api.res_pm + Api.user_param)
     @expect_session_key
     @expect_data(Api.message)
     @verify_username
     @verify_user
-    def on_post_user_pm(self, session_key, message_text, username, user):
+    def post_user_pm(self, session_key, message_text, username, user):
         pm = self._users[username].get_pm_box(user)
         self.response.status = 201
         return pm.add_msg(username, message_text).get_dict()
 
+    @route(Api.username_param + Api.res_pm + Api.user_param + Api.msg_id_param)
     @expect_session_key
     @verify_username
     @verify_user
     @verify_msg_id
-    def on_delete_pm(self, session_key, username, user, msg_id):
+    def delete_pm(self, session_key, username, user, msg_id):
         pm = self._users[username].get_pm_box(user)
         try:
             pm.remove_msg_id(msg_id, username)
