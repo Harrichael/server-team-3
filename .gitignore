@@ -4,3 +4,12 @@ __pycache__/
 
 # Vim cache files
 *.swp
+
+# Virtual env
+env/
+
+# VS Code Settings
+.vscode/
+
+# SQL Cleanup Script
+cleanup.sql
