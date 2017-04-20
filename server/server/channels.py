@@ -307,7 +307,7 @@ class Channels(Resource):
         try:
             page_size = int(self.request.query.page_size or self.default_page_size)
             page = int(self.request.query.page or channel.chat.last_page(page_size))
-        except:
+        except ValueError:
             self.response.status = 400
             return {}
 

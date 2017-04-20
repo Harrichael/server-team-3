@@ -2,6 +2,7 @@
 Helper methods and decorators for common patterns
 """
 
+import lib.bottle.bottle
 from server.api import Api
 
 """
@@ -16,14 +17,14 @@ def expect_data(*args):
             args = list(args)
             try:
                 json_data = resource_inst.request.json
-            except:
+            except bottle.HTTPError:
                 resource_inst.response.status = 400
                 return {}
                 
             try:
                 for field in fields:
                     args.append(json_data[field])
-            except:
+            except KeyError:
                 resource_inst.response.status = 422
                 return {}
 
@@ -41,7 +42,7 @@ def expect_session_key(resource_method):
     def wrapper(resource_inst, *args, **kwargs):
         try:
             session_key = resource_inst.request.get_header(Api.session_key)
-        except:
+        except KeyError:
             resource_inst.response.status = 422
             return {}
 
@@ -104,7 +105,7 @@ def verify_msg_id(resource_method):
         args = list(args)
         try:
             msg_id = int(kwargs[Api.msg_id_p])
-        except:
+        except (KeyError, ValueError):
             resource_inst.response.status = 400
             return {}
         del kwargs[Api.msg_id_p]
