@@ -7,7 +7,7 @@ from server.resource import Resource
 from server.routes import route
 
 class Static(Resource):
-    @route('/web/<filepath:re:.*>')
+    @route('/<filepath:re:(?!static).*>')
     def get_html(self, filepath):
         return static_file(filepath + '.html', root='server/static/html')
 
@@ -22,3 +22,21 @@ class Static(Resource):
     @route('/static/js/<filepath:re:.*\.js>')
     def get_js(self, filepath):
         return static_file(filepath, root='server/static/js')
+
+class Client(Resource):
+    @route('/<filepath:re:(?!(web|api|client)).*>')
+    def get_html(self, filepath):
+        return static_file(filepath + '.html', root='server/lib/ChatBareBones/html')
+
+    @route('/client/css/<filepath:re:.*\.css>')
+    def get_css(self, filepath):
+        return static_file(filepath, root='server/lib/ChatBareBones/css')
+
+    @route('/client/img/<filepath:re:.*\.(jpg|png|gif|ico|svg)>')
+    def get_img(self, filepath):
+        return static_file(filepath, root='server/lib/ChatBareBones/img')
+
+    @route('/client/js/<filepath:re:.*\.js>')
+    def get_js(self, filepath):
+        return static_file(filepath, root='server/lib/ChatBareBones/js')
+

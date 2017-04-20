@@ -25,8 +25,9 @@ def add_resource(root_url, resource):
                 raise NotImplementedError('Prefix of method: {}'.format(rest_method)) 
             getattr(bottle, rest_method)(method_uri)( resource_method )
 
-def set_routes(session, users, channels, static):
+def set_routes(session, users, channels, static, client):
     add_resource(Api.api + Api.session, session)
     add_resource(Api.api + Api.res_users, users)
     add_resource(Api.api + Api.res_channels, channels)
-    add_resource('', static)
+    add_resource('/web', static)
+    add_resource('', client)

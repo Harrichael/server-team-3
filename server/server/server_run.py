@@ -8,7 +8,7 @@ from server.routes import set_routes
 from server.session import Session
 from server.users import Users
 from server.channels import Channels
-from server.static import Static
+from server.static import Static, Client
 
 def setup_app():
     bottle.response.headers['Content-Type'] = 'application/json' 
@@ -17,6 +17,7 @@ def setup_app():
     users_inst = Users()
     channels_inst = Channels(session_inst, users_inst)
     static_inst = Static()
+    client_inst = Client()
     session_inst.set_users_resource(users_inst)
     users_inst.set_session_resource(session_inst)
 
@@ -25,6 +26,7 @@ def setup_app():
         users_inst,
         channels_inst,
         static_inst,
+        client_inst,
     )
 
 def run(host, port, debug=False):
