@@ -11,4 +11,3 @@ class Resource(object):
     response = bottle.response
     request = bottle.request
 
-    method_uris = {}

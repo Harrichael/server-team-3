@@ -6,7 +6,7 @@ class Api(object):
     """
     Routes
     """
-    cmn_uri_prefix = '/api'
+    api = '/api'
     session = '/session'
     res_users = '/users'
     res_channels = '/channels'
@@ -55,4 +55,5 @@ class Api(object):
     admins = 'admins'
     chief_admin = 'chief-admin'
     chat = 'chat'
+    web = 'web'
 
