@@ -28,7 +28,7 @@ class Thinclient(cmd.Cmd):
         self.api.post('/session', data)
 
     @tokenize
-    @num_tokens(1)
+    @num_tokens(0)
     def do_logout(self):
         self.api.delete('/session')
 
@@ -48,70 +48,70 @@ class Thinclient(cmd.Cmd):
         self.api.post('/users', data)
 
     @tokenize   
-    @num_tokens(2)
-    def do_change_password(self, session_key, password):
+    @num_tokens(3)
+    def do_change_password(self, session_key, password, username):
         data = {
             'session-key': session_key,
             'password': password
         }
-        self.api.put('/users/<username>/password', data)
+        self.api.put('/users/' + username + '/password', data)
 
     @tokenize   
-    @num_tokens(2)
-    def do_verify_email(self, email, email_code):
+    @num_tokens(3)
+    def do_verify_email(self, email, email_code, username):
         data = {
             'email': email,
             'email_code': email_code
         }
-        self.api.put('/users/<username>/emails', data)
+        self.api.put('/users/' + username + '/emails', data)
 
     @tokenize  
-    @num_tokens(0)
-    def do_get_user_config(self):
-        self.api.get('/users/<username>/config')
+    @num_tokens(1)
+    def do_get_user_config(self, username):
+        self.api.get('/users/' + username + '/config')
 
     @tokenize  
-    @num_tokens(4)
-    def do_update_user_config(self, ... ):
+    @num_tokens(5)
+    def do_update_user_config(self, ..., username ):
         data = {
 
         """argparse stuff"""
 
         }
-        self.api.put('/users/<username>/config')
+        self.api.put('/users/' + username + '/config')
 
     @tokenize   
-    @num_tokens(0)
-    def do_get_user_profile(self):
-        self.api.get('/users/<user>/profile')
+    @num_tokens(1)
+    def do_get_user_profile(self, user):
+        self.api.get('/users/' + user + '/profile')
 
     @tokenize    
-    @num_tokens(4)
-    def do_update_user_profile(self, ... ):
+    @num_tokens(5)
+    def do_update_user_profile(self, ..., username ):
         data = {
 
         """argparse stuff"""
 
         }
-        self.api.put('/users/<username>/profile', data)
-
-    @tokenize    
-    @num_tokens(0)
-    def do_get_pm_history(self):
-        self.api.get('/users/<username>/pm/<user>')
+        self.api.put('/users/' + username + '/profile', data)
 
     @tokenize    
     @num_tokens(1)
-    def do_send_pm(self, message):
+    def do_get_pm_history(self. username):
+        self.api.get('/users/' + username + '/pm/<user>')
+
+    @tokenize    
+    @num_tokens(3)
+    def do_send_pm(self, message, username, user):
         data = {
             'message': message
         }
-        self.api.post('/users/<username>/pm/<user>', data)
+        self.api.post('/users/' + username + '/pm/' + user, data)
 
     @tokenize    
-    @num_tokens(0)
-    def do_delete_pm(self):
-        self.api.delete('/users/<username>/pm/<user>/<id>')
+    @num_tokens(2)
+    def do_delete_pm(self, username, user):
+        self.api.delete('/users/' + username + '/pm/' + user + '/<id>')
 
     @tokenize
     @num_tokens(0)
@@ -127,71 +127,70 @@ class Thinclient(cmd.Cmd):
         self.api.post('/channels', data)
 
     @tokenize  
-    @num_tokens(0)
-    def do_delete_channel(self):
-        self.api.delete('/channels/<channel>')
+    @num_tokens(1)
+    def do_delete_channel(self, channel):
+        self.api.delete('/channels/' + channel)
 
     @tokenize   
-    @num_tokens(0)
-    def do_get_channel_admins(self):
-        self.api.get('/channels/<channel>/admins')
+    @num_tokens(1)
+    def do_get_channel_admins(self, channel):
+        self.api.get('/channels/' + channel + '/admins')
 
     @tokenize   
-    @num_tokens(2)
-    def do_adjust_admin_level(self, admins, chiefAdmin):
+    @num_tokens(3)
+    def do_adjust_admin_level(self, admins, chiefAdmin, channel):
         data = {
             'admins': admin_list,
             'chiefAdmin': admin
         }
-        self.api.put('/channels/<channel>/admins', data)
+        self.api.put('/channels/' + channel + '/admins', data)
 
     @tokenize    
-    @num_tokens(0)
-    def do_get_channel_subscribers(self):
-        self.api.get('/channels/<channel>/subscriptions')
+    @num_tokens(1)
+    def do_get_channel_subscribers(self, channel):
+        self.api.get('/channels/' + channel + '/subscriptions')
 
     @tokenize   
-    @num_tokens(0)
-    def do_subscribe_to_channel(self):
-        self.api.post('/channels/<channel>/subscriptions')
+    @num_tokens(1)
+    def do_subscribe_to_channel(self, channel):
+        self.api.post('/channels/' + channel + '/subscriptions')
 
     @tokenize  
-    @num_tokens(0)
-    def do_unsubscribe_to_channel(self):
-        self.api.delete('/channels/<channel>/subscriptions')
+    @num_tokens(1)
+    def do_unsubscribe_to_channel(self, channel):
+        self.api.delete('/channels/' + channel + '/subscriptions')
 
     @tokenize      
-    @num_tokens(2)
-    def do_get_blocked_users(self):
-
-        self.api.get('/channels/<channel>/black-list')
+    @num_tokens(1)
+    def do_get_blocked_users(self, channel):
+        self.api.get('/channels/' + channel + '/black-list')
 
     @tokenize  
-    @num_tokens(0)
-    def do_block_user_channel(self, username, time):
+    @num_tokens(3)
+    def do_block_user_channel(self, username, time, channel):
         data = {
             'username': username,
             'time': time
         }
-        self.api.post('/channels/<channel>/black-list', data)
-
-    @tokenize
-    @num_tokens(0)
-    def do_get_channel_history(self):
-        self.api.get('/channels/<channel>/chat')
+        self.api.post('/channels/' + channel + '/black-list', data)
 
     @tokenize
     @num_tokens(1)
-    def do_send_message(self, message):
+    def do_get_channel_history(self, channel):
+        self.api.get('/channels/' + channel + '/chat')
+
+    @tokenize
+    @num_tokens(2)
+    def do_send_message(self, message, channel):
         data = {
             'message': message
         }
-        self.api.post('/channels/<channel>/chat', data)
+        self.api.post('/channels/' + channel + '/chat', data)
 
     @tokenize
-    @num_tokens(0)
-    def do_delete_message(self):
-        self.api.delete('/channels/<channel>/chat/<id>')
+    @num_tokens(2)
+    def do_delete_message(self, channel, id):
+        self.api.delete('/channels/' + channel + '/chat/' + id)
 
 
 if __name__ == '__main__':
