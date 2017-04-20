@@ -179,7 +179,6 @@ class Users(Resource):
             page_size = int(self.request.query.page_size or self.default_page_size)
             page = int(self.request.query.page or pm.last_page(page_size))
         except:
-            raise
             self.response.status = 400
             return {}
         self.response.status = 200
