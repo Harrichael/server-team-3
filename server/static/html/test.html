@@ -21,10 +21,7 @@
 <label for="output"></label>
 <div style="text-align:center;"><input type="textbox" name="output" style="height:400px" size="50" disabled="true"></input></div><br />
 
-<div style="text-align:center;"><input type="commandline" name="command" size="50"></input></div>
-<p><script>
-	console.log('kick').value;
-</script></p>
+<div style="text-align:center;"><input id="command" type="commandline" name="command" size="50" onkeypress=handle(event)></input></div>
 
 </form>
 
