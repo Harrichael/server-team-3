@@ -1,11 +1,32 @@
+<!DOCTYPE html>
 <html>
+<head>
+<script src="func.js"></script>
+</head>
+<body>
 
-    <head>
-        <script type="text/javascript" src="/web/static/js/script.js"></script>
-    </head>
+<h1>Server 3 Console</h1>
 
-    <body>
-        <button onclick="sayHello('world')">Click Me</button>
-    </body>
+<p id="demo">Users Online</p>
+<form>
+<select id="Command_Selection">
+	<option value="kick">Kick User:</option>
+	<option value="ban">Ban User:</option>
+	<option value="kickall">Kick All</option>
+</select>
+<input type="text" name="user" size="10">	
+<button type="button" onclick="ChoiceFunc()">Select</button>
 
+<div style="text-align:center"><p>Output</p></div>
+<label for="output"></label>
+<div style="text-align:center;"><input type="textbox" name="output" style="height:400px" size="50" disabled="true"></input></div><br />
+
+<div style="text-align:center;"><input type="commandline" name="command" size="50"></input></div>
+<p><script>
+	console.log('kick').value;
+</script></p>
+
+</form>
+
+</body>
 </html>
