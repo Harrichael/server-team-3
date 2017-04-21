@@ -71,3 +71,15 @@ function handle(e){
 			CommandLine();
     }
 }
+
+$.ajax({
+  type: "POST",
+  url: "/api/users",
+  data: {"username":"test","password":"pass","email":"test"},
+  success: function (data, textStatus, xhr) {
+	  alert("It Worked");
+  } ,
+  contentType: "application/json",
+  dataType: "json"
+});
+
