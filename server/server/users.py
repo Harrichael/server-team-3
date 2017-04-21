@@ -99,7 +99,7 @@ class Users(Resource):
             self.response.status = 409
         return {}
 
-    @route(Api.username_param + Api.res_password)
+    @route(Api.username_param, Api.password)
     @expect_session_key
     @expect_data(Api.password)
     @verify_username
@@ -109,7 +109,7 @@ class Users(Resource):
         self.response.status = 200
         return {}
 
-    @route(Api.username_param + Api.res_emails)
+    @route(Api.username_param, Api.emails)
     @expect_data(Api.email, Api.email_code)
     @verify_username
     def put_verify_email(self, email, email_code, username):
@@ -122,7 +122,7 @@ class Users(Resource):
             self.response.status = 422
             return {}
 
-    @route(Api.username_param + Api.res_config)
+    @route(Api.username_param, Api.config)
     @expect_session_key
     @verify_username
     def get_user_config(self, session_key, username):
@@ -130,7 +130,7 @@ class Users(Resource):
         self.response.status = 200
         return user.config.get_dict()
 
-    @route(Api.username_param + Api.res_config)
+    @route(Api.username_param, Api.config)
     @expect_session_key
     @verify_username
     def put_user_config(self, session_key, username):
@@ -144,14 +144,14 @@ class Users(Resource):
         self.response.status = 200
         return user.config.get_dict()
 
-    @route(Api.username_param + Api.res_profile)
+    @route(Api.username_param, Api.profile)
     @expect_session_key
     @verify_user
     def get_user_profile(self, session_key, user):
         self.response.status = 200
         return self._users[user].profile.get_dict()
 
-    @route(Api.username_param + Api.res_profile)
+    @route(Api.username_param, Api.profile)
     @expect_session_key
     @verify_username
     def put_user_profile(self, session_key, username):
@@ -169,7 +169,7 @@ class Users(Resource):
         self.response.status = 200
         return user.profile.get_dict()
 
-    @route(Api.username_param + Api.res_pm + Api.user_param)
+    @route(Api.username_param, Api.pm, Api.user_param)
     @expect_session_key
     @verify_username
     @verify_user
@@ -184,7 +184,7 @@ class Users(Resource):
         self.response.status = 200
         return pm.get_dict(page, page_size)
 
-    @route(Api.username_param + Api.res_pm + Api.user_param)
+    @route(Api.username_param, Api.pm, Api.user_param)
     @expect_session_key
     @expect_data(Api.message)
     @verify_username
@@ -194,7 +194,7 @@ class Users(Resource):
         self.response.status = 201
         return pm.add_msg(username, message_text).get_dict()
 
-    @route(Api.username_param + Api.res_pm + Api.user_param + Api.msg_id_param)
+    @route(Api.username_param, Api.pm, Api.user_param, Api.msg_id_param)
     @expect_session_key
     @verify_username
     @verify_user

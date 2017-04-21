@@ -6,9 +6,9 @@ import lib.bottle.bottle as bottle
 
 from server.api import Api
 
-def route(uri=''):
+def route(*uri_list):
     def decorator(func):
-        func.resource_route = uri
+        func.resource_route = ''.join(['/' + el for el in uri_list])
         return func
     return decorator
 
@@ -25,9 +25,3 @@ def add_resource(root_url, resource):
                 raise NotImplementedError('Prefix of method: {}'.format(rest_method)) 
             getattr(bottle, rest_method)(method_uri)( resource_method )
 
-def set_routes(session, users, channels, static, client):
-    add_resource(Api.api + Api.session, session)
-    add_resource(Api.api + Api.res_users, users)
-    add_resource(Api.api + Api.res_channels, channels)
-    add_resource('/web', static)
-    add_resource('', client)

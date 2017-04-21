@@ -4,7 +4,8 @@ Sets up the server
 
 import lib.bottle.bottle as bottle
 
-from server.routes import set_routes
+from server.api import Api
+from server.routes import add_resource
 from server.session import Session
 from server.users import Users
 from server.channels import Channels
@@ -21,14 +22,13 @@ def setup_app():
     session_inst.set_users_resource(users_inst)
     users_inst.set_session_resource(session_inst)
 
-    set_routes(
-        session_inst,
-        users_inst,
-        channels_inst,
-        static_inst,
-        client_inst,
-    )
+    add_resource('/' + Api.api + '/' + Api.session, session_inst)
+    add_resource('/' + Api.api + '/' + Api.users, users_inst)
+    add_resource('/' + Api.api + '/' + Api.channels, channels_inst)
+    add_resource('/web', static_inst)
+    add_resource('', client_inst)
 
 def run(host, port, debug=False):
     setup_app()
     bottle.run(host=host, port=port, debug=debug)
+

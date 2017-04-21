@@ -57,7 +57,7 @@ class Session(Resource):
     """
     Rest Methods
     """
-    @route('/' + Api.users)
+    @route(Api.users)
     @expect_session_key
     def get_online_users(self, session_key):
         self.response.status = 200

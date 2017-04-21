@@ -180,7 +180,7 @@ class Channels(Resource):
             self.response.status = 403
         return {}
 
-    @route(Api.channel_param + '/' + Api.subscriptions)
+    @route(Api.channel_param, Api.subscriptions)
     @expect_session_key
     @verify_channel
     def get_chnl_subscriptions(self, session_key, channel_name):
@@ -190,7 +190,7 @@ class Channels(Resource):
             Api.subscriptions: list(channel.subscribers)
         }
 
-    @route(Api.channel_param + '/' + Api.subscriptions)
+    @route(Api.channel_param, Api.subscriptions)
     @expect_session_key
     @verify_channel
     def post_subscribe(self, session_key, channel_name):
@@ -202,7 +202,7 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
-    @route(Api.channel_param + '/' + Api.subscriptions)
+    @route(Api.channel_param, Api.subscriptions)
     @expect_session_key
     @verify_channel
     def delete_unsubscribe(self, session_key, channel_name):
@@ -214,7 +214,7 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
-    @route(Api.channel_param + '/' + Api.black_list)
+    @route(Api.channel_param, Api.black_list)
     @expect_session_key
     @verify_channel
     def get_black_list(self, session_key, channel_name):
@@ -223,7 +223,7 @@ class Channels(Resource):
         self.response.status = 200
         return channel.blocked_get_dict()
 
-    @route(Api.channel_param + '/' + Api.black_list)
+    @route(Api.channel_param, Api.black_list)
     @expect_session_key
     @expect_data(Api.username, Api.time)
     @verify_channel
@@ -240,7 +240,7 @@ class Channels(Resource):
             self.response.status = 422
         return {}
 
-    @route(Api.channel_param + '/' + Api.admins)
+    @route(Api.channel_param, Api.admins)
     @expect_session_key
     @verify_channel
     def get_chnl_admins(self, session_key, channel_name):
@@ -251,7 +251,7 @@ class Channels(Resource):
             Api.chief_admin: channel.chief_admin
         }
 
-    @route(Api.channel_param + '/' + Api.admins)
+    @route(Api.channel_param, Api.admins)
     @expect_session_key
     @verify_channel
     def put_update_admins(self, session_key, channel_name):
@@ -294,7 +294,7 @@ class Channels(Resource):
             self.response.status = 200
             return {}
 
-    @route(Api.channel_param + '/' + Api.chat)
+    @route(Api.channel_param, Api.chat)
     @expect_session_key
     @verify_channel
     def get_chnl_chat(self, session_key, channel_name):
@@ -314,7 +314,7 @@ class Channels(Resource):
         self.response.status = 200
         return channel.chat.get_dict(page, page_size)
 
-    @route(Api.channel_param + '/' + Api.chat)
+    @route(Api.channel_param, Api.chat)
     @expect_session_key
     @verify_channel
     @expect_data(Api.message)
@@ -328,7 +328,7 @@ class Channels(Resource):
         self.response.status = 201
         return channel.chat.add_msg(username, message_text).get_dict()
 
-    @route(Api.channel_param + '/' + Api.chat + Api.msg_id_param)
+    @route(Api.channel_param, Api.chat, Api.msg_id_param)
     @expect_session_key
     @verify_channel
     @verify_msg_id

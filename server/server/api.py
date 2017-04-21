@@ -3,32 +3,26 @@ Api class for our api routes and json data field names
 """
 
 class Api(object):
-    """
-    Routes
-    """
-    api = '/api'
-    session = '/session'
-    res_users = '/users'
-    res_channels = '/channels'
-    res_emails = '/emails'
-    res_password = '/password'
-    res_config = '/config'
-    res_profile = '/profile'
-    res_pm = '/pm'
-    username_param = '/<username>'
-    user_param = '/<user>'
-    msg_id_param = '/<msg_id>'
-    channel_param = '/<channel>'
+    api = 'api'
+    session = 'session'
+    users = 'users'
+    channels = 'channels'
+    emails = 'emails'
+    password = 'password'
+    config = 'config'
+    profile = 'profile'
+    pm = 'pm'
+
+    username_param = '<username>'
+    user_param = '<user>'
+    msg_id_param = '<msg_id>'
+    channel_param = '<channel>'
 
     msg_id_p = 'msg_id'
 
-    """
-    Data fields
-    """
     session_key = 'session-key'
     username = 'username'
     user = 'user'
-    password = 'password'
     email = 'email'
     users = 'users'
     email_code = 'code'
