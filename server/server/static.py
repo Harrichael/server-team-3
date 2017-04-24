@@ -26,17 +26,17 @@ class Static(Resource):
 class Client(Resource):
     @route('<filepath:re:(?!(web|api|client)).*>')
     def get_html(self, filepath):
-        return static_file(filepath + '.html', root='server/lib/ChatBareBones/html')
+        return static_file(filepath + '.html', root='server/lib/ChatBareBones2/html')
 
     @route('client/css/<filepath:re:.*\.css>')
     def get_css(self, filepath):
-        return static_file(filepath, root='server/lib/ChatBareBones/css')
+        return static_file(filepath, root='server/lib/ChatBareBones2/css')
 
     @route('client/img/<filepath:re:.*\.(jpg|png|gif|ico|svg)>')
     def get_img(self, filepath):
-        return static_file(filepath, root='server/lib/ChatBareBones/img')
+        return static_file(filepath, root='server/lib/ChatBareBones2/img')
 
     @route('client/js/<filepath:re:.*\.js>')
     def get_js(self, filepath):
-        return static_file(filepath, root='server/lib/ChatBareBones/js')
+        return static_file(filepath, root='server/lib/ChatBareBones2/js')
 
