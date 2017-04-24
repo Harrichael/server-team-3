@@ -1,3 +1,6 @@
 [submodule "server/lib/bottle"]
 	path = server/lib/bottle
 	url = https://github.com/bottlepy/bottle.git
+[submodule "server/lib/ChatBareBones2"]
+	path = server/lib/ChatBareBones2
+	url = https://github.com/gideonw14/ChatBareBones2.git
