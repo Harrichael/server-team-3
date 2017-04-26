@@ -3,8 +3,9 @@ cli for thinclient
 """
 
 import cmd
-
+import argparse
 import rest_methods
+
 from cli_helpers import tokenize, num_tokens
 
 class Thinclient(cmd.Cmd):
@@ -70,34 +71,58 @@ class Thinclient(cmd.Cmd):
     def do_get_user_config(self, username):
         self.api.get('/users/' + username + '/config')
 
-    @tokenize  
-    @num_tokens(5)
-    def do_update_user_config(self, ..., username ):
-        data = {
+    def do_update_user_config(self, line):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-u', '--username', required=True)
+        parser.add_argument('-b', '--blocked', default=None)
+        parser.add_argument('-c', '--chat_filter', default=None)
 
-        """argparse stuff"""
+        try:
+            args = parser.parse_args(line.split())
+        except SystemExit:
+            return
 
-        }
-        self.api.put('/users/' + username + '/config')
+        data = {}
+        if args.blocked is not None:
+            data['blocked'] = args.blocked
+        if args.chat_filter is not None:
+            data['chat-filter'] = args.chat_filter
+
+        self.api.put('/users/' + args.username + '/config', data)
 
     @tokenize   
     @num_tokens(1)
     def do_get_user_profile(self, user):
         self.api.get('/users/' + user + '/profile')
 
-    @tokenize    
-    @num_tokens(5)
-    def do_update_user_profile(self, ..., username ):
-        data = {
+    def do_update_user_profile(self, line):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-u', '--username', required=True)
+        parser.add_argument('-f', '--firstname', default=None)
+        parser.add_argument('-l', '--lastname', default=None)
+        parser.add_argument('-b', '--bio', default=None)
+        parser.add_argument('-g', '--gender', default=None)
 
-        """argparse stuff"""
+        try:
+            args = parser.parse_args(line.split())
+        except SystemExit:
+            return
 
-        }
-        self.api.put('/users/' + username + '/profile', data)
+        data = {}
+        if args.firstname is not None:
+            data['firstname'] = args.firstname
+        if args.lastname is not None:
+            data['lastname'] = args.lastname
+        if args.bio is not None:
+            data['bio'] = args.bio
+        if args.gender is not None:
+            data['gender'] = args.gender
+ 
+        self.api.put('/users/' + args.username + '/profile', data)
 
     @tokenize    
     @num_tokens(1)
-    def do_get_pm_history(self. username):
+    def do_get_pm_history(self, username):
         self.api.get('/users/' + username + '/pm/<user>')
 
     @tokenize    
