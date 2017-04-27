@@ -2,7 +2,7 @@
 Helper methods and decorators for common patterns
 """
 
-import lib.bottle.bottle
+import lib.bottle.bottle as bottle
 from server.api import Api
 
 """
