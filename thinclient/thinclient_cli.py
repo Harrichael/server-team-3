@@ -12,6 +12,10 @@ class Thinclient(cmd.Cmd):
     def __init__(self): 
         super(Thinclient, self).__init__()
         self.api = rest_methods.Rest('http://localhost:8000/api')
+        self.prompt = 'Thinclient> '
+
+    def do_EOF(self):
+        return True
 
     @tokenize
     @num_tokens(1)
@@ -72,7 +76,7 @@ class Thinclient(cmd.Cmd):
         self.api.get('/users/' + username + '/config')
 
     def do_update_user_config(self, line):
-        parser = argparse.ArgumentParser()
+        parser = argparse.argumentparser()
         parser.add_argument('-u', '--username', required=True)
         parser.add_argument('-b', '--blocked', default=None)
         parser.add_argument('-c', '--chat_filter', default=None)
@@ -147,7 +151,7 @@ class Thinclient(cmd.Cmd):
     @num_tokens(1)
     def do_create_channel(self, channel_name):
         data = {
-            'channel_name': channel_name
+            'channel-name': channel_name
         }
         self.api.post('/channels', data)
 
@@ -164,11 +168,23 @@ class Thinclient(cmd.Cmd):
     @tokenize   
     @num_tokens(3)
     def do_adjust_admin_level(self, admins, chiefAdmin, channel):
-        data = {
-            'admins': admin_list,
-            'chiefAdmin': admin
-        }
-        self.api.put('/channels/' + channel + '/admins', data)
+        parser = argparse.argumentparser()
+        parser.add_argument('-c', '--channel', required=True)
+        parser.add_argument('-a', '--admins', default=None)
+        parser.add_argument('-o', '--chief_admin', default=None)
+
+        try:
+            args = parser.parse_args(line.split())
+        except SystemExit:
+            return
+
+        data = {}
+        if args.admins is not None:
+            data['admins'] = args.admins.split(',')
+        if args.chief_admin is not None:
+            data['chief-admin'] = args.chief_admin
+
+        self.api.put('/channels/' + args.channel + '/admins', data)
 
     @tokenize    
     @num_tokens(1)
