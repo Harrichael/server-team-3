@@ -1,10 +1,12 @@
 
-function register(username, password, email, callbacks) {
-    default_callbacks = {
+function register(username, password, email, options) {
+    defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
         username_taken: function (data, textStatus, xhr) {}
     };
+    
+    callbacks = $.extend({}, defaults, options);
 
     $.ajax({
         type: "POST",
@@ -15,10 +17,10 @@ function register(username, password, email, callbacks) {
             password: password,
             email: email
         }),
-        success: (callbacks.hasOwnProperty("success")) ? callbacks.success : default_callbacks.success,
-        error: (callbacks.hasOwnProperty("error")) ? callbacks.error : default_callbacks.error,
+        success: callbacks.success,
+        error: callbacks.error,
         statusCode: {
-            409: (callbacks.hasOwnProperty("username_taken")) ? callbacks.username_taken : default_callbacks.username_taken
+            409: callbacks.username_taken
         }
     });
 }
