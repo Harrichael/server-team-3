@@ -1,25 +1,10 @@
-   
+
 function register(username, password, email, callbacks) {
-    if (callbacks.hasOwnProperty("success"))
-    {
-        success_callback = callbacks.success;
-    } else {
-        success_callback = function (data, textStatus, xhr) {};
-    }
-
-    if (callbacks.hasOwnProperty("error"))
-    {
-        error_callback = callbacks.error;
-    } else {
-        error_callback = function (data, textStatus, xhr) {};
-    }
-
-    if (callbacks.hasOwnProperty("username_taken"))
-    {
-        username_taken_callback = callbacks.username_taken;
-    } else {
-        username_taken_callback = function (data, textStatus, xhr) {};
-    }
+    default_callbacks = {
+        success: function (data, textStatus, xhr) {},
+        error: function (data, textStatus, xhr) {},
+        username_taken: function (data, textStatus, xhr) {}
+    };
 
     $.ajax({
         type: "POST",
@@ -30,10 +15,10 @@ function register(username, password, email, callbacks) {
             password: password,
             email: email
         }),
-        success: success_callback,
-        error: error_callback,
+        success: (callbacks.hasOwnProperty("success")) ? callbacks.success : default_callbacks.success,
+        error: (callbacks.hasOwnProperty("error")) ? callbacks.error : default_callbacks.error,
         statusCode: {
-            409: username_taken_callback
+            409: (callbacks.hasOwnProperty("username_taken")) ? callbacks.username_taken : default_callbacks.username_taken
         }
     });
 }
