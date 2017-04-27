@@ -3,6 +3,31 @@
 var commands = ['kick','ban','kickall','UserList','ServerStatus','ServerShutdown','CreateRoom','DeleteRoom','Whitelist','Blacklist','UnBan','CommandList'];
 
 function ChoiceFunc(){
+
+    // Example Post, needs to be invoked on a register click
+    
+    $.ajax({
+        type: "POST",
+        url: "/api/users",
+        data: JSON.stringify({
+            username: "test",
+            password: "pass",
+            email: "test"
+        }),
+        success: function (data, textStatus, xhr) {
+            alert("It Worked");
+        },
+        error: function (data) {
+            alert("General Failure");
+        },
+        statusCode: {
+            409: function (data) {
+                alert("Specific error handler, (username already taken)");
+            }
+        },
+        contentType: "application/json",
+    });
+
 	switch (document.getElementById('Command_Selection').value){
 		case commands[0]:
 			document.getElementsByName('output')[0].value= document.getElementsByName('user')[0].value + " has been kicked";
@@ -71,15 +96,4 @@ function handle(e){
 			CommandLine();
     }
 }
-
-$.ajax({
-  type: "POST",
-  url: "/api/users",
-  data: {"username":"test","password":"pass","email":"test"},
-  success: function (data, textStatus, xhr) {
-	  alert("It Worked");
-  } ,
-  contentType: "application/json",
-  dataType: "json"
-});
 
