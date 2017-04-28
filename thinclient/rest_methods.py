@@ -7,7 +7,11 @@ import requests
 
 def rest_wrapper(rest_func):
     def wrapper(*args, **kwargs):
-        response = rest_func(*args, **kwargs)
+        try:
+            response = rest_func(*args, **kwargs)
+        except:
+            print('Failed to talk to Server')
+            return {}
         print(response.status_code)
         print(response.json())
         return response

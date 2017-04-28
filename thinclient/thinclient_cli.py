@@ -125,9 +125,9 @@ class Thinclient(cmd.Cmd):
         self.api.put('/users/' + args.username + '/profile', data)
 
     @tokenize    
-    @num_tokens(1)
-    def do_get_pm_history(self, username):
-        self.api.get('/users/' + username + '/pm/<user>')
+    @num_tokens(2)
+    def do_get_pm_history(self, username, user):
+        self.api.get('/users/' + username + '/pm/' + user)
 
     @tokenize    
     @num_tokens(3)
@@ -139,8 +139,8 @@ class Thinclient(cmd.Cmd):
 
     @tokenize    
     @num_tokens(2)
-    def do_delete_pm(self, username, user):
-        self.api.delete('/users/' + username + '/pm/' + user + '/<id>')
+    def do_delete_pm(self, username, user, id):
+        self.api.delete('/users/' + username + '/pm/' + user + '/' + id)
 
     @tokenize
     @num_tokens(0)
@@ -157,13 +157,13 @@ class Thinclient(cmd.Cmd):
 
     @tokenize  
     @num_tokens(1)
-    def do_delete_channel(self, channel):
-        self.api.delete('/channels/' + channel)
+    def do_delete_channel(self, channel_name):
+        self.api.delete('/channels/' + channel_name)
 
     @tokenize   
     @num_tokens(1)
-    def do_get_channel_admins(self, channel):
-        self.api.get('/channels/' + channel + '/admins')
+    def do_get_channel_admins(self, channel_name):
+        self.api.get('/channels/' + channel_name + '/admins')
 
     @tokenize   
     @num_tokens(3)
@@ -192,13 +192,13 @@ class Thinclient(cmd.Cmd):
         self.api.get('/channels/' + channel + '/subscriptions')
 
     @tokenize   
-    @num_tokens(1)
+    @num_tokens(2)
     def do_subscribe_to_channel(self, channel):
-        self.api.post('/channels/' + channel + '/subscriptions')
+        self.api.post('/channels/' + channel + '/subscriptions', data)
 
     @tokenize  
     @num_tokens(1)
-    def do_unsubscribe_to_channel(self, channel):
+    def do_unsubscribe_from_channel(self, channel):
         self.api.delete('/channels/' + channel + '/subscriptions')
 
     @tokenize      
