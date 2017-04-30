@@ -25,7 +25,7 @@ git pull
 
 The ChatBareBones2 directory is the client team's repo, so the two git commands above operate on the client team's repo. You can make direct changes here and push them.
 
-The client repo will have an html, js, css, and img file. The files witin them are automatically routed to localhost:8000/client/<path/to/fileName.ending> with the exception that html files are routed to localhost:8000/<path/to/fileName>.
+The client repo will have an html, js, css, and img file. The files within them are automatically routed to localhost:8000/client/<path/to/fileName.ending> with the exception that html files are routed to localhost:8000/<path/to/fileName>.
 
 ## Troubleshooting ##
 
