@@ -211,15 +211,13 @@ function update_user_config(username, data_options, options){
     var str_url = "/api/users/" + username + "/config";
 
     $.ajax({
-        type: "POST",
+        type: "PUT",
         url: str_url,
         headers: {
             "session-key": session_key,
             "Content-Type": "application/json"
         },
-        data: {
-            data: data
-        }
+        data: data,
         success: callbacks.success,
         error: callbacks.error,
         complete: callbacks.complete
@@ -255,7 +253,32 @@ function get_user_profile(user, options){
     });
 }
 
-function update_user_profile(){}
+function update_user_profile(username, data_option, options){
+	defaults = {
+        success: function (data, textStatus, xhr) {},
+        error: function (data, textStatus, xhr) {},
+        complete: function (data, textStatus, xhr) {}
+    };
+    
+    callbacks = $.extend({}, defaults, options);
+
+    data = $.extend({}, data_options, data);
+
+    var str_url = "/api/users/" + username + "/profile";
+
+    $.ajax({
+        type: "PUT",
+        url: str_url,
+        headers: {
+            "session-key": session_key,
+            "Content-Type": "application/json"
+        },
+        data: data,
+        success: callbacks.success,
+        error: callbacks.error,
+        complete: callbacks.complete
+    });
+}
 
 
 function get_pm_history(username, user, options){
@@ -319,7 +342,7 @@ function send_pm(message, username, user, options) {
 }
 
 // message ID ?????
-function delete_pm(username, user, options) {
+function delete_pm(username, user, id, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -458,7 +481,32 @@ function get_channel_admins(channel, options){
     });
 }
 
-function adjust_admin_level (admins, chiefAdmin, channel, options){}
+function adjust_admin_level (admins, chiefAdmin, channel, options){
+	defaults = {
+        success: function (data, textStatus, xhr) {},
+        error: function (data, textStatus, xhr) {},
+        complete: function (data, textStatus, xhr) {}
+    };
+    
+    callbacks = $.extend({}, defaults, options);
+
+    data = $.extend({}, data_options, data);
+
+    var str_url = "/api/users/" + username + "/admins";
+
+    $.ajax({
+        type: "PUT",
+        url: str_url,
+        headers: {
+            "session-key": session_key,
+            "Content-Type": "application/json"
+        },
+        data: data,
+        success: callbacks.success,
+        error: callbacks.error,
+        complete: callbacks.complete
+    });
+}
 
 function get_channel_subscribers(channel){
     defaults = {
