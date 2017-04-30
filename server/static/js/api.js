@@ -1,4 +1,8 @@
-
+/*
+Javascript file providing api abstaction.
+Functions here should force required arguments and provide
+objects for optional data parameters and optional callbacks.
+*/
 
 function login(username, password, options) {
     defaults = {
@@ -31,7 +35,7 @@ function login(username, password, options) {
     });
 }
 
-function logout(options) {
+function logout(session_key, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -53,7 +57,7 @@ function logout(options) {
     });
 }
 
-function get_online_users(options) {
+function get_online_users(session_key, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -125,7 +129,7 @@ function change_password(session_key, password, options) {
             "Content-Type": "application/json"
         },
         data: JSON.stringify({
-            session-key: session_key,
+            "session-key": session_key,
             password: password
         }),
         success: callbacks.success,
@@ -137,7 +141,7 @@ function change_password(session_key, password, options) {
     });
 }
 
-function verify_email(email, email_code, username, options) {
+function verify_email(username, email, email_code, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -168,7 +172,7 @@ function verify_email(email, email_code, username, options) {
     });
 }
 
-function get_user_config(username, options) {
+function get_user_config(username, session_key, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -193,7 +197,7 @@ function get_user_config(username, options) {
 }
 
 
-function update_user_config(username, data_options, options){
+function update_user_config(username, session_key, data_options, options){
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -217,9 +221,7 @@ function update_user_config(username, data_options, options){
             "session-key": session_key,
             "Content-Type": "application/json"
         },
-        data: {
-            data: data
-        }
+        data: JSON.stringify(data),
         success: callbacks.success,
         error: callbacks.error,
         complete: callbacks.complete
@@ -227,7 +229,7 @@ function update_user_config(username, data_options, options){
 }
 
 
-function get_user_profile(user, options){
+function get_user_profile(session_key, user, options){
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -258,7 +260,7 @@ function get_user_profile(user, options){
 function update_user_profile(){}
 
 
-function get_pm_history(username, user, options){
+function get_pm_history(username, session_key, user, options){
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -287,7 +289,7 @@ function get_pm_history(username, user, options){
 }
 
 
-function send_pm(message, username, user, options) {
+function send_pm(username, session_key, user, message, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -318,8 +320,7 @@ function send_pm(message, username, user, options) {
     });
 }
 
-// message ID ?????
-function delete_pm(username, user, options) {
+function delete_pm(username, session_key, user, id, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -329,7 +330,7 @@ function delete_pm(username, user, options) {
 
     callbacks = $.extend({}, defaults, options);
 
-    var str_url = "/api/users/" + username + "/pm/" + user + id;
+    var str_url = "/api/users/" + username + "/pm/" + user + "/" + id;
 
     $.ajax({
         type: "DELETE",
@@ -340,14 +341,14 @@ function delete_pm(username, user, options) {
         },
         success: callbacks.success,
         error: callbacks.error,
-        complete: callbacks.complete
+        complete: callbacks.complete,
         statusCode: {
             409: callbacks.invalid_user
         }
     });
 }
 
-function get_channel_list(options){
+function get_channel_list(session_key, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -373,7 +374,7 @@ function get_channel_list(options){
     });
 }
 
-function create_channel(channel_name, options) {
+function create_channel(session_key, channel_name, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -402,7 +403,7 @@ function create_channel(channel_name, options) {
     });
 }
 
-function delete_channel(channel, options) {
+function delete_channel(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -423,14 +424,14 @@ function delete_channel(channel, options) {
         },
         success: callbacks.success,
         error: callbacks.error,
-        complete: callbacks.complete
+        complete: callbacks.complete,
         statusCode: {
             409: callbacks.invalid_channel
         }
     });
 }
 
-function get_channel_admins(channel, options){
+function get_channel_admins(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -458,9 +459,9 @@ function get_channel_admins(channel, options){
     });
 }
 
-function adjust_admin_level (admins, chiefAdmin, channel, options){}
+function adjust_admin_level (session_key, admins, chiefAdmin, channel, options){}
 
-function get_channel_subscribers(channel){
+function get_channel_subscribers(session_key, channel) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -484,13 +485,13 @@ function get_channel_subscribers(channel){
         error: callbacks.error,
         complete: callbacks.complete,
         statusCode: {
-            409: callbacks.invalid_channel
+            409: callbacks.invalid_channel,
             409: callbacks.no_subscribers
         }
     });
 }
 
-function subscribe_to_channel (channel, options){
+function subscribe_to_channel(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -520,7 +521,7 @@ function subscribe_to_channel (channel, options){
     });
 }
 
-function unsubscribe_from_channel(channel, options){
+function unsubscribe_from_channel(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -548,7 +549,7 @@ function unsubscribe_from_channel(channel, options){
     });
 }
 
-function get_blocked_users(channel, options){
+function get_blocked_users(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -578,7 +579,7 @@ function get_blocked_users(channel, options){
     });    
 }
 
-function block_user_channel(username, time, channel, options){
+function block_user_channel(session_key, username, time, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -612,7 +613,7 @@ function block_user_channel(username, time, channel, options){
     });
 }
 
-function get_channel_history(channel, options){
+function get_channel_history(session_key, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -640,7 +641,7 @@ function get_channel_history(channel, options){
     });    
 }
 
-function send_message(message, channel, options){
+function send_message(session_key, message, channel, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -671,7 +672,7 @@ function send_message(message, channel, options){
     });
 }
 
-function delete_message(channel, id, options){
+function delete_message(session_key, channel, id, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},
         error: function (data, textStatus, xhr) {},
@@ -700,8 +701,4 @@ function delete_message(channel, id, options){
         } 
     });
 }
-
-
-
-
 
