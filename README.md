@@ -14,6 +14,8 @@ git submodule update --init
 python3 server/
 ```
 
+You may need to substitute "python3" for the appropriate command on your system.
+
 ## Update the Client Pages ##
 ```
 cd server/lib/ChatBareBones2
@@ -32,3 +34,6 @@ You need to make sure you are running the correct command for Python3. For most 
 
 ### No Module Named lib.bottle.bottle ###
 You need to initialize the submodules. See the instructions for cloning the repo. Notice that the submodule command must be ran in the top directory of the repo.
+
+### No Module Named server.server_run ###
+You are trying to run the server with a version of Python 2. This server is written in Python 3 and it fails on this import because importing changed slightly between python versions.
