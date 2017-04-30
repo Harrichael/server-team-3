@@ -3,17 +3,23 @@
 This is the server component of Team 3's Chat Client for CS3100, SP2017 at Missouri S&T.
 
 ## Clone the Repo ##
+```
 git clone git@github.com:renodubois/server-team-3.git
 cd server-team-3
 git submodule update --init
+```
 
 ## Run the Server ##
+```
 python3 server/
+```
 
 ## Update the Client Pages ##
+```
 cd server/lib/ChatBareBones2
 git checkout master
 git pull
+```
 
 The ChatBareBones2 directory is the client team's repo, so the two git commands above operate on the client team's repo. You can make direct changes here and push them.
 
