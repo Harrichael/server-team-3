@@ -14,7 +14,13 @@ git submodule update --init
 python3 server/
 ```
 
-You may need to substitute "python3" for the appropriate command on your system.
+You may need to substitute "python3" for the appropriate command on your system. You can also optionally turn on e-mail verification:
+
+```
+python3 server/ --verify_email TRUE
+```
+
+To see what options the server was started with, perform a GET on /api/server/hello.
 
 ## Update the Client Pages ##
 ```
