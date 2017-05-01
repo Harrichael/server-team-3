@@ -76,7 +76,7 @@ class Thinclient(cmd.Cmd):
         self.api.get('/users/' + username + '/config')
 
     def do_update_user_config(self, line):
-        parser = argparse.argumentparser()
+        parser = argparse.ArgumentParser()
         parser.add_argument('-u', '--username', required=True)
         parser.add_argument('-b', '--blocked', default=None)
         parser.add_argument('-c', '--chat_filter', default=None)
@@ -168,7 +168,7 @@ class Thinclient(cmd.Cmd):
     @tokenize   
     @num_tokens(3)
     def do_adjust_admin_level(self, admins, chiefAdmin, channel):
-        parser = argparse.argumentparser()
+        parser = argparse.ArgumentParser()
         parser.add_argument('-c', '--channel', required=True)
         parser.add_argument('-a', '--admins', default=None)
         parser.add_argument('-o', '--chief_admin', default=None)
