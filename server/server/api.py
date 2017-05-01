@@ -2,6 +2,8 @@
 Api class for our api routes and json data field names
 """
 
+import re
+
 class Api(object):
     admins = 'admins'
     api = 'api'
@@ -20,6 +22,7 @@ class Api(object):
     email = 'email'
     email_code = 'code'
     emails = 'emails'
+    error_fields = 'malformed-fields'
     firstname = 'first-name'
     gender = 'gender'
     lastname = 'last-name'
@@ -51,4 +54,17 @@ class Api(object):
     Values
     """
     default_chat_filter = 'none'
+
+    """
+    Regex Validators
+    """
+    c_username = re.compile('^[a-zA-Z0-9_.-]*$')
+    @classmethod
+    def re_username(cls, username):
+        return cls.c_username.match(username)
+
+    c_email = re.compile('^.*[@].*[.].*$')
+    @classmethod
+    def re_email(cls, email):
+        return cls.c_email.match(email)
 

@@ -91,7 +91,18 @@ class Users(Resource):
     @route()
     @expect_data(Api.username, Api.password, Api.email)
     def post_register(self, username, password, email):
-        # TODO: validate email, send email
+        # TODO: send email
+        valid_username = Api.re_username(username)
+        valid_email = Api.re_email(email)
+        if not valid_username or not valid_email:
+            self.response.status = 400
+            invalid_fields = []
+            if not valid_username:
+                invalid_fields.append(Api.username)
+            if not valid_email:
+                invalid_fields.append(Api.email)
+            return { Api.error_fields: invalid_fields }
+
         if username not in self._users:
             self._users[username] = User(username, password, email)
             self.response.status = 201
@@ -114,6 +125,9 @@ class Users(Resource):
     @verify_username
     def put_verify_email(self, email, email_code, username):
         # TODO: implement this code stuff
+        if not Api.re_email(email):
+            self.response.status = 400
+            return {}
         user = self._users[username]
         if user.email == email:
             self.response.status = 200
