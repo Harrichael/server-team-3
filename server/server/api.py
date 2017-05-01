@@ -68,3 +68,7 @@ class Api(object):
     def re_email(cls, email):
         return cls.c_email.match(email)
 
+    c_channel_name = re.compile('^[a-zA-Z0-9_.-]*$')
+    @classmethod
+    def re_channel_name(cls, channel_name):
+        return cls.c_channel_name.match(channel_name)
