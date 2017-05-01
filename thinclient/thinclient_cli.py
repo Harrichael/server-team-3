@@ -18,6 +18,11 @@ class Thinclient(cmd.Cmd):
         return True
 
     @tokenize
+    @num_tokens(0)
+    def do_hello(self):
+        self.api.get('/server/hello')
+
+    @tokenize
     @num_tokens(1)
     def do_set_session_key(self, session_key):
         self.api.set_header('session-key', session_key)
