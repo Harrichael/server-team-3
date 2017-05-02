@@ -2,6 +2,7 @@
 
 # Library Imports
 from pymongo import MongoClient
+from time import time
 
 
 # Connect to our database
@@ -77,19 +78,81 @@ def modify_user(client, username, params):
 
 
 def get_all_users(client):
-    pass
+    users = []
+    for user in client.users.find_many({}):
+        users.append(user)
+    return users
 
 
 def get_channel(client, name):
-    pass
+    return client.channels.find_one({'name': name})
 
 
-def modify_channel(client, params):
-    pass
+def create_channel(client, name, admin_name):
+    if get_channel(client, name):
+        # channel with that name already exists
+        return 409
+    else:
+        params = {
+            'name': name,
+            'head_admin': admin_name,
+            'blacklist': []
+        }
+        client.channels.insert_one(params)
+        return 201
+
+
+def modify_channel(client, name, params):
+    chan = get_channel(client, name)
+    if chan:
+        client.channels.update_one({'_id': chan['_id']}, {'$set': params})
+        return 200
+    else:
+        # User wasn't found.
+        return 404
 
 
 def blacklist_user(client, channel, username, duration):
-    pass
+    # Make sure this is an actual user.
+    if not get_user(client, username):
+        return 400
+    # Found will be a helper variable to detirmine if we found the entry or not
+    found = False
+    # First, grab the existing blacklist for that channel.
+    chan = client.channels.find_one({'name': channel})
+    blacklist = chan['blacklist']
+    # Check to see if the user exists in there currently.
+    for entry in blacklist:
+        # This means the user is already in there
+        if entry['username'] == username:
+            found = True
+            entry['finish-time'] += duration
+    if not found:
+        # This means we didn't find one, so need to create a new entry.
+        finish_time = int(time()) + duration
+        blacklist.append({'username': username, 'finish-time': finish_time})
+    # Now, let's return our blacklist back to the DB.
+    client.channels.update_one({'_id': chan['_id']},
+                               {'$set': {'blacklist': blacklist}})
+    return 200
+
+
+def remove_user_blacklist(client, channel, username):
+    found = False
+    # Grab the current blacklist.
+    chan = client.channels.find_one({'name': channel})
+    blacklist = chan['blacklist']
+    for entry in blacklist[:]:
+        if entry['username'] == username:
+            found = True
+            blacklist.remove(entry)
+    if not found:
+        # User wasn't blacklisted in the first place
+        # TODO: What status code for this???
+        return 400
+    client.channels.update_one({'_id': chan['_id']},
+                               {'$set': {'blacklist': blacklist}})
+    return 200
 
 
 def modify_admin(channel, username, modify):
