@@ -133,7 +133,6 @@ Do not reply to this e-mail.
         if username not in self._users:
             code = self._gen_email_code()
             self._users[username] = User(username, password, email, code)
-            print(self.config.verify_email, type(self.config.verify_email))
             if self.config.verify_email:
                 self._email.send( email,
                                   'Verification E-mail: Server3',
