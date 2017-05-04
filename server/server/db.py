@@ -96,7 +96,9 @@ def create_channel(client, name, admin_name):
         params = {
             'name': name,
             'head_admin': admin_name,
-            'blacklist': []
+            'admins': [admin_name],
+            'blacklist': [],
+            'messages': []
         }
         client.channels.insert_one(params)
         return 201
@@ -155,24 +157,106 @@ def remove_user_blacklist(client, channel, username):
     return 200
 
 
-def modify_admin(channel, username, modify):
+def add_admin(channel, username, modify):
     pass
 
 
 # Included head_admins
-def get_admins(channel):
-    pass
+def get_admins(client, channel):
+    chan = client.channels.find_one({'name': channel})
+    if not chan:
+        return []
+    else:
+        return chan['admins']
 
 
-# TODO: Message retrieval
+def get_all_messages(client):
+    messages = []
+    for msg in client.messages.find_many({}):
+        messages.append(msg)
+    messages = list(sorted(msg, key=lambda msg: msg['id']))
+    return messages
 
-def send_message(channel, body):
-    pass
+
+def send_message(client, channel, sender, body):
+    # Check and see if we have at least one message
+    chan = client.channels.find_one({'name': channel})
+    messages = chan['messages']
+    new_id = len(messages)
+    msg = {
+        'body': body,
+        'id': new_id,
+        'timestamp': int(time()),
+        'sender': sender,
+        'deleted': 0
+    }
+    client.channels.update_one({'_id': chan['_id']},
+                               {'$push': {'messages': msg}})
 
 
-def send_private_message(channel, body):
-    pass
+def delete_message(client, channel, msg_id):
+    # Grab the channel's messages
+    chan = get_channel(client, channel)
+    if not chan:
+        return 500
+    messages = chan['messages']
+    # Find the message we want to delete
+    if msg_id < len(messages):
+        messages[msg_id]['deleted'] = 1
+        client.channels.update_one({'_id': chan['_id']}, {'$set': {'messages': messages}})
+        return 200
+    else:
+        return 500
 
-# TODO: Replace (update) personal block lists
 
-# TODO: Insert & grab PM Boxes, alphabetically sorted
+def get_pm_box(client, user1, user2):
+    users = (user1, user2)
+    swapped_users = (user2, user1)
+    pm_box = client.pm_box.find_one({'users': users})
+    if pm_box:
+        return pm_box
+    else:
+        pm_box = client.pm_box.find_one({'users': swapped_users})
+        if pm_box:
+            return pm_box
+        else:
+            # No PM Box found
+            return None
+
+
+def send_private_message(client, sender, reciever, body):
+    # Check to make sure they're not equal
+    if sender == reciever:
+        return 500
+    # Check and see if a pm_box exists for the two
+    pm_box = get_pm_box(client, sender, reciever)
+    if not pm_box:
+        # One does not exist
+        client.pm_box.insert_one({
+            'users': [sender, reciever],
+            'messages': []
+        })
+        pm_box = get_pm_box(client, sender, reciever)
+    messages = pm_box['messages']
+    new_id = len(messages)
+    msg = {
+        'body': body,
+        'id': new_id,
+        'timestamp': int(time()),
+        'sender': sender,
+        'deleted': 0
+    }
+    client.pm_box.update_one({'_id': pm_box['_id']},
+                             {'$push': {'messages': msg}})
+
+
+def del_pm(client, user1, user2, msg_id):
+    pm_box = get_pm_box(client, user1, user2)
+    if not pm_box:
+        # There is no private message box create for these users!
+        return 500
+    messages = pm_box['messages']
+    messages[msg_id]['deleted'] = 1
+    client.pm_box.update_one({'_id': pm_box['_id']},
+                             {'$set': {'messages': messages}})
+    return 200
