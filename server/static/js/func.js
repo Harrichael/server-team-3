@@ -2,19 +2,31 @@
 
 var commands = ['kick','ban','kickall','UserList','ServerStatus','ServerShutdown','CreateRoom','DeleteRoom','Whitelist','Blacklist','UnBan','CommandList'];
 
-function ChoiceFunc(){
+function createField(text, handle) {
+    return '<div>' + text + '<input type="text" id="' + handle + '" size="10"></input></div>'
+}
 
-    // Example Post, needs to be invoked on a register click
-    register("myuser2", "mypass", "myemail", {
-        success: function(data, textStatus, xhr) {
-            alert("Success");
-        },
-        username_taken: function(data, textStatus, xhr) {
-            alert("Failure");
-        },
-    });
+function UpdateFields() {
+    command = document.getElementById('Command_Selection').value
+	switch (command) {
+        case 'register':
+            $('#Fields')
+                .empty()
+                .append(createField('Username:', 'username'))
+                .append(createField('Password:', 'password'))
+                .append(createField('Email:', 'email'))
+            ;
+            break;
+		default:
+			window.alert("Not Implemented: " + command);
+			break;
+    }
+}
 
-	switch (document.getElementById('Command_Selection').value){
+function ExecuteCommand() {
+
+    command = document.getElementById('Command_Selection').value
+	switch (command) {
 		case commands[0]:
 			document.getElementsByName('output')[0].value= document.getElementsByName('user')[0].value + " has been kicked";
 			document.getElementsByName('user')[0].value='';
@@ -27,8 +39,21 @@ function ChoiceFunc(){
 			document.getElementsByName('output')[0].value= "All users have been kicked";
 			document.getElementsByName('user')[0].value='';
 			break;
+        case 'register':
+            username = $('#username').val();
+            password = $('#password').val();
+            email = $('#email').val();
+            register_user(username, password, email, {
+                success: function(data, textStatus, xhr) {
+                    alert("Success");
+                },
+                username_taken: function(data, textStatus, xhr) {
+                    alert("Failure");
+                },
+            });
+			break;
 		default:
-			window.alert("NOT WORKING");
+			window.alert("Not Implemented: " + command);
 			break;
 	}
 }
