@@ -159,6 +159,9 @@ class Channels(Resource):
     @expect_session_key
     @expect_data(Api.channel_name)
     def post_channel(self, session_key, channel_name):
+        if not Api.re_channel_name(channel_name):
+            self.response.status = 400
+            return {Api.error_fields: [Api.channel_name]}
         username = self.session.get_user(session_key)
         if channel_name not in self._channels:
             self._channels[channel_name] = Channel(channel_name, username)

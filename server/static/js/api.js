@@ -4,6 +4,27 @@ Functions here should force required arguments and provide
 objects for optional data parameters and optional callbacks.
 */
 
+function hello(options) {
+    defaults = {
+        success: function (data, textStatus, xhr) {},
+        error: function (data, textStatus, xhr) {},
+        complete: function (data, textStatus, xhr) {},
+    };
+    
+    callbacks = $.extend({}, defaults, options);
+
+    $.ajax({
+        type: "GET",
+        url: "/api/server/hello",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        success: callbacks.success,
+        error: callbacks.error,
+        complete: callbacks.complete
+    });
+}
+
 function login(username, password, options) {
     defaults = {
         success: function (data, textStatus, xhr) {},

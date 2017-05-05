@@ -14,6 +14,8 @@ from server.resource_helpers import ( expect_data,
                                     )
 from server.message import MessageBox
 from server.routes import route
+from server.sendmail import Email
+from server.utility import choice
 
 class UserConfig(object):
     def __init__(self):
@@ -48,12 +50,20 @@ class UserProfile(object):
 class User(object):
     pm_boxes = defaultdict(MessageBox)
 
-    def __init__(self, username, password, email):
+    def __init__(self, username, password, email, code):
         self.username = username
         self.password = password
         self.email = email
+        self.code = code
+        self.verified = False
         self.config = UserConfig()
         self.profile = UserProfile()
+
+    def attempt_verify(self, code):
+        if code == self.code:
+            self.verified = True
+
+        return self.verified
 
     def get_pm_box(self, user):
         key = tuple(sorted([self.username, user]))
@@ -64,12 +74,23 @@ class Users(Resource):
     Resource Parameters
     """
     default_page_size = 10
+    code_len = 6
+    code_chars = '0123456789'
+    _verify_email = """\
+Your e-mail verification code {} can be used to verify your account's email.
+
+If you are not expecting this e-mail, you may ignore it.
+Do not reply to this e-mail.
+
+- Server 3
+"""
 
     """
     Resource Data
     """
     def __init__(self):
         self._users = {} # Key: username, Value: User()
+        self._email = Email('server3.dreamteam@gmail.com', 'dream.mst')
         self.session = None
         self.users = self
 
@@ -80,10 +101,17 @@ class Users(Resource):
         return username in self._users
 
     def validate_password(self, username, password):
-        return password == self._users[username].password
+        user = self._users[username]
+        return password == user.password and user.verified
+
+    def username_verified(self, username):
+        return self._users[username].verified
 
     def set_session_resource(self, session_resource):
         self.session = session_resource
+
+    def _gen_email_code(self):
+        return ''.join(choice(self.code_chars) for _ in range(self.code_len))
 
     """
     Rest Methods
@@ -91,9 +119,27 @@ class Users(Resource):
     @route()
     @expect_data(Api.username, Api.password, Api.email)
     def post_register(self, username, password, email):
-        # TODO: validate email, send email
+        valid_username = Api.re_username(username)
+        valid_email = Api.re_email(email)
+        if not valid_username or not valid_email:
+            self.response.status = 400
+            invalid_fields = []
+            if not valid_username:
+                invalid_fields.append(Api.username)
+            if not valid_email:
+                invalid_fields.append(Api.email)
+            return { Api.error_fields: invalid_fields }
+
         if username not in self._users:
-            self._users[username] = User(username, password, email)
+            code = self._gen_email_code()
+            self._users[username] = User(username, password, email, code)
+            if self.config.verify_email:
+                self._email.send( email,
+                                  'Verification E-mail: Server3',
+                                  self._verify_email.format(code)
+                                )
+            else:
+                self._users[username].attempt_verify(code)
             self.response.status = 201
         else:
             self.response.status = 409
@@ -109,18 +155,21 @@ class Users(Resource):
         self.response.status = 200
         return {}
 
-    @route(Api.username_param, Api.emails)
+    @route(Api.user_param, Api.emails)
     @expect_data(Api.email, Api.email_code)
-    @verify_username
+    @verify_user
     def put_verify_email(self, email, email_code, username):
-        # TODO: implement this code stuff
         user = self._users[username]
         if user.email == email:
-            self.response.status = 200
-            return {}
+            if user.attempt_verify(email_code):
+                self.response.status = 200
+                return {}
+            else:
+                self.response.status = 422
+                return {Api.error_fields: [Api.email_code]}
         else:
             self.response.status = 422
-            return {}
+            return {Api.error_fields: [Api.email]}
 
     @route(Api.username_param, Api.config)
     @expect_session_key

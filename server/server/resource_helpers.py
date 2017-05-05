@@ -62,6 +62,9 @@ def verify_username(resource_method):
 
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
+        if Api.username not in kwargs:
+            resource_inst.response.status = 400
+            return {}
         username = kwargs[Api.username]
         del kwargs[Api.username]
         args.append(username)
@@ -85,6 +88,10 @@ def verify_user(resource_method):
 
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
+        print(kwargs)
+        if Api.user not in kwargs:
+            resource_inst.response.status = 500
+            return {}
         username = kwargs[Api.user]
         del kwargs[Api.user]
         args.append(username)
@@ -106,7 +113,7 @@ def verify_msg_id(resource_method):
         try:
             msg_id = int(kwargs[Api.msg_id_p])
         except (KeyError, ValueError):
-            resource_inst.response.status = 400
+            resource_inst.response.status = 500
             return {}
         del kwargs[Api.msg_id_p]
         args.append(msg_id)
@@ -121,6 +128,9 @@ def verify_channel(resource_method):
 
     def wrapper(resource_inst, *args, **kwargs):
         args = list(args)
+        if Api.channel not in kwargs:
+            resource_inst.response.status = 500
+            return {}
         channel_name = kwargs[Api.channel]
         del kwargs[Api.channel]
         args.append(channel_name)

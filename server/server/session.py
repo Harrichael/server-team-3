@@ -67,6 +67,9 @@ class Session(Resource):
     @expect_data(Api.username, Api.password)
     def post_login(self, username, password):
         if self.users.validate_username(username):
+            if not self.users.username_verified(username):
+                self.response.status = 403
+                return {}
             if self.users.validate_password(username, password):
                 new_session_key = self._gen_session_key()
                 self._user_sessions[new_session_key] = username
