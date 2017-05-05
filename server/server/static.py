@@ -26,6 +26,8 @@ class Static(Resource):
 class Client(Resource):
     @route('<filepath:re:(?!(web|api|client)).*>')
     def get_html(self, filepath):
+        if filepath == '':
+            return static_file('index.html', root='server/lib/ChatBareBones2/html')
         return static_file(filepath + '.html', root='server/lib/ChatBareBones2/html')
 
     @route('client/css/<filepath:re:.*\.css>')
