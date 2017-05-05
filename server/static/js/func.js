@@ -6,6 +6,8 @@ function createField(text, handle) {
     return '<div>' + text + '<input type="text" id="' + handle + '" size="10"></input></div>'
 }
 
+// TODO: Decide to use global session key or manual enter
+
 function UpdateFields() {
     command = document.getElementById('Command_Selection').value
 	switch (command) {
@@ -17,11 +19,26 @@ function UpdateFields() {
                 .append(createField('Email:', 'email'))
             ;
             break;
+        case 'login':
+            $('#Fields')
+                .empty()
+                .append(createField('Username:', 'username'))
+                .append(createField('Password:', 'password'))
+            ;
+            break;
+        case 'logout':
+            $('#Fields')
+                .empty()
+                .append(createField('Session Key:', 'session_key'))
+            ;
+            break;
 		default:
 			window.alert("Not Implemented: " + command);
 			break;
     }
 }
+
+var session_key = "default";
 
 function ExecuteCommand() {
 
@@ -47,11 +64,29 @@ function ExecuteCommand() {
                 success: function(data, textStatus, xhr) {
                     alert("Success");
                 },
-                username_taken: function(data, textStatus, xhr) {
+                error: function(data, textStatus, xhr) {
                     alert("Failure");
                 },
             });
 			break;
+        case 'login':
+            username = $('#username').val();
+            password = $('#password').val();
+            login(username, password, {
+                success: function(data, textStatus, xhr) {
+                    alert(data['session-key']);
+                    session_key = (' ' + data['session-key']).slice(1);
+                },
+            });
+            break;
+        case 'logout':
+            //session_key = $('#session_key').val();
+            logout(session_key, {
+                success: function(data, textStatus, xhr) {
+                    alert('Logged out!!');
+                },
+            });
+            break;
 		default:
 			window.alert("Not Implemented: " + command);
 			break;
